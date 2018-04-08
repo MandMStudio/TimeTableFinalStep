@@ -1,5 +1,7 @@
 package com.mmstudio.timetable;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -70,6 +72,7 @@ public class MainActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+        FragmentManager fm = getFragmentManager();
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
@@ -80,7 +83,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_time) {
 
         } else if (id == R.id.nav_subjects) {
-
+            fm.beginTransaction().replace(R.id.content_frame, new DataFragment("subject")).commit();
         } else if (id == R.id.nav_teachers) {
 
         } else if (id == R.id.nav_lessons_types) {
