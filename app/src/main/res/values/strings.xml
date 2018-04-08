@@ -6,4 +6,13 @@
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
+    <string name="title_main">TimeTable</string>
+    <string name="title_settings">Settings</string>
+    <string name="title_time">Time</string>
+    <string name="title_subjects">Subjects</string>
+    <string name="title_teachers">Teachers</string>
+    <string name="title_buildings">Buildings</string>
+    <string name="title_subject_type">Subjects Types</string>
+    <string name="title_display">Time Table</string>
+    <string name="title_two_weeks">Two weeks</string>
 </resources>

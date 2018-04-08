@@ -1,38 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:showIn="navigation_view">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Import" />
+            android:checked="true"
+            android:id="@+id/nav_main"
+            android:icon="@drawable/home"
+            android:title="@string/title_main" />
         <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
-        <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
-        <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/settings"
+            android:title="@string/title_settings" />
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="@string/title_settings">
         <menu>
-            <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
-            <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_time"
+                    android:icon="@drawable/clock"
+                    android:title="@string/title_time" />
+                <item
+                    android:id="@+id/nav_subjects"
+                    android:icon="@drawable/subjects"
+                    android:title="@string/title_subjects" />
+                <item
+                    android:id="@+id/nav_teachers"
+                    android:icon="@drawable/teacher"
+                    android:title="@string/title_teachers" />
+                <item
+                    android:id="@+id/nav_buildings"
+                    android:icon="@drawable/corpus"
+                    android:title="@string/title_buildings" />
+                <item
+                    android:id="@+id/nav_lessons_types"
+                    android:icon="@drawable/subject_type"
+                    android:title="@string/title_subject_type" />
+            </group>
         </menu>
     </item>
+
+
 
 </menu>
