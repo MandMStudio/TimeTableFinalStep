@@ -12,6 +12,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.style.LeadingMarginSpan;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,6 +22,8 @@ import com.mmstudio.timetable.Fragments.DataFragment;
 import com.mmstudio.timetable.Fragments.MainFragment;
 import com.mmstudio.timetable.Fragments.TimeExpandFragment;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     public static String currentFragment;
@@ -29,13 +32,15 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
 
         getFragmentManager().beginTransaction().replace(R.id.content_frame, new MainFragment()).commit();
+
         currentFragment = "MainFragment";
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -45,7 +50,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
     }
 
-    @SuppressLint("NewApi")
+    @SuppressLint({"NewApi", "ResourceType"})
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -57,7 +62,9 @@ public class MainActivity extends AppCompatActivity
                     getFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_right_enter, R.anim.slide_right_exit).replace(R.id.content_frame, new DataFragment(DBHelper.TABLE_TIME)).commit();
                     break;
                 case "DataFragment":
-                    getFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new MainFragment()).commit();
+
+
+                    getFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new MainFragment()).commit();
                     break;
                 case "MainFragment":
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -114,33 +121,109 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+
+
+        ArrayList<String> fragmenList = new ArrayList<>();
+        fragmenList.add(DBHelper.TABLE_TIME);
+        fragmenList.add(DBHelper.TABLE_SUB);
+        fragmenList.add(DBHelper.TABLE_TEACHERS);
+        fragmenList.add(DBHelper.TABLE_BUILDINGS);
+        fragmenList.add(DBHelper.TABLE_TYPE);
+
+        String selectionType;
+
+
         if (id == R.id.nav_main) {
             // Handle the camera action
         } else if (id == R.id.nav_settings) {
 
         } else if (id == R.id.nav_time) {
 
-            fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(DBHelper.TABLE_TIME)).commit();
+
+            selectionType = DBHelper.TABLE_TIME;
+            int lastIndex = fragmenList.indexOf(DataFragment.lastSelection);
+            int newIndex = fragmenList.indexOf(selectionType);
+            Log.d("mLog",lastIndex +" "+ newIndex);
+            if(lastIndex>newIndex){
+                fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+            }else if(lastIndex<newIndex){
+                fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+            }else{
+                fm.beginTransaction().replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+            }
+
+
             this.setTitle(R.string.title_time);
 
         } else if (id == R.id.nav_subjects) {
 
-            fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(DBHelper.TABLE_SUB)).commit();
+            selectionType = DBHelper.TABLE_SUB;
+            int lastIndex = fragmenList.indexOf(DataFragment.lastSelection);
+            int newIndex = fragmenList.indexOf(selectionType);
+            Log.d("mLog",lastIndex +" "+ newIndex);
+            if(lastIndex>newIndex){
+                fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+            }else if(lastIndex<newIndex){
+                fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+            }else{
+                fm.beginTransaction().replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+            }
+
             this.setTitle(R.string.title_subjects);
 
         } else if (id == R.id.nav_teachers) {
 
-            fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(DBHelper.TABLE_TEACHERS)).commit();
+            selectionType = DBHelper.TABLE_TEACHERS;
+            int lastIndex = fragmenList.indexOf(DataFragment.lastSelection);
+            int newIndex = fragmenList.indexOf(selectionType);
+            Log.d("mLog",lastIndex +" "+ newIndex);
+            if(lastIndex>newIndex){
+                fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+            }else if(lastIndex<newIndex){
+                fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+            }else{
+                fm.beginTransaction().replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+            }
+
+            this.setTitle(R.string.title_subjects);
+
+
             this.setTitle(R.string.title_teachers);
-
-        } else if (id == R.id.nav_lessons_types) {
-
-            fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(DBHelper.TABLE_TYPE)).commit();
-            this.setTitle(R.string.title_subject_type);
 
         } else if (id == R.id.nav_buildings) {
 
-            fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(DBHelper.TABLE_BUILDINGS)).commit();
+            selectionType = DBHelper.TABLE_BUILDINGS;
+            int lastIndex = fragmenList.indexOf(DataFragment.lastSelection);
+            int newIndex = fragmenList.indexOf(selectionType);
+            Log.d("mLog",lastIndex +" "+ newIndex);
+            if(lastIndex>newIndex){
+                fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+            }else if(lastIndex<newIndex){
+                fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+            }else{
+                fm.beginTransaction().replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+            }
+
+            this.setTitle(R.string.title_subjects);
+
+            this.setTitle(R.string.title_subject_type);
+
+        } else if (id == R.id.nav_lessons_types) {
+
+            selectionType = DBHelper.TABLE_TYPE;
+            int lastIndex = fragmenList.indexOf(DataFragment.lastSelection);
+            int newIndex = fragmenList.indexOf(selectionType);
+            Log.d("mLog",lastIndex +" "+ newIndex);
+            if(lastIndex>newIndex){
+                fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+            }else if(lastIndex<newIndex){
+                fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+            }else{
+                fm.beginTransaction().replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+            }
+
+            this.setTitle(R.string.title_subjects);
+
             this.setTitle(R.string.title_buildings);
 
         }
