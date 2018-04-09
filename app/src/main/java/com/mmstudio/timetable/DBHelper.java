@@ -50,8 +50,8 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("create table  " + TABLE_BUILDINGS + " (" + KEY_ID + " integer primary key," + KEY_VALUE + " text)");
 
         db.execSQL("create table  " + TABLE_SETTINGS + " (" + KEY_ID + " integer primary key," + KEY_SETTING_NAME + " text," + KEY_VALUE + " text)");
-        db.rawQuery("INSERT INTO "+ TABLE_SETTINGS + "("+KEY_SETTING_NAME+", "+KEY_VALUE+") VALUES ('timeFormat','24mode')",null);
-        db.rawQuery("INSERT INTO "+ TABLE_SETTINGS + "("+KEY_SETTING_NAME+", "+KEY_VALUE+") VALUES ('lessonLenth','45')",null);
+        db.execSQL("INSERT INTO "+ TABLE_SETTINGS + "("+KEY_SETTING_NAME+", "+KEY_VALUE+") VALUES ('timeFormat','24mode')");
+        db.execSQL("INSERT INTO "+ TABLE_SETTINGS + "("+KEY_SETTING_NAME+", "+KEY_VALUE+") VALUES ('lessonLenth','45')");
 
         //First Week
         db.execSQL("create table  " + TABLE_MON + "1 (time text,subject text, room text, teacher text,type text, building text)");

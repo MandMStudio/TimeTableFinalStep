@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.text.InputType;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,12 +34,15 @@ import com.mmstudio.timetable.MainActivity;
 import com.mmstudio.timetable.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 @SuppressLint("ValidFragment")
 public class DataFragment extends Fragment {
     public static String lastSelection;
     private String selectionType;
-    private ArrayList<String> dataList =new ArrayList<>();
+    private List<String> dataList =new ArrayList<>();
     private FloatingActionButton fab;
     private ArrayAdapter<String> adapter;
 
@@ -64,6 +68,7 @@ public class DataFragment extends Fragment {
 
 
         dataList = readFromDB(getActivity(),selectionType); //read from DB data and add it to dataList
+
 
 
 
@@ -337,7 +342,7 @@ public class DataFragment extends Fragment {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ArrayList<String> list = new ArrayList<>();
 
-        Cursor cursor = db.query(table, null, null, null, null, null, DBHelper.KEY_VALUE + " ASC", null);
+        Cursor cursor = db.query(table, null, null, null, null, null, null, null);
 
         if(cursor.getCount() !=0){
             while (cursor.moveToNext()){
@@ -351,24 +356,24 @@ public class DataFragment extends Fragment {
 
         return list;
     }
-    public static String[][] readSettings(Activity activity){
-        String[][] res = new String[4][2];
-
+    public static ArrayList<String> readSettingsFromDB(Activity activity) {
         DBHelper dbHelper = new DBHelper(activity);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ArrayList<String> list = new ArrayList<>();
 
         Cursor cursor = db.query(DBHelper.TABLE_SETTINGS, null, null, null, null, null, null, null);
 
         if(cursor.getCount() !=0){
-            int i =0;
             while (cursor.moveToNext()){
-                res[i][0] = cursor.getString(1);
-                res[i][1] = cursor.getString(2);
+                list.add(cursor.getString(2));
             }
+        }else{
+
         }
 
+        cursor.close();
 
-        return res;
+        return list;
     }
     public static void addDataToDB(Activity activity,String table, String data){
 

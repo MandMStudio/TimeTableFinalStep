@@ -15,9 +15,11 @@ public class MainFragment extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.main_fragment, container, false);
+
         MainActivity.currentFragment = "MainFragment";
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
 
 
         return v;

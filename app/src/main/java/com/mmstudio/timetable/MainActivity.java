@@ -27,6 +27,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     public static String currentFragment;
+    public static ArrayList<String> appSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +35,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        appSettings = DataFragment.readSettingsFromDB(this);
 
         getFragmentManager().beginTransaction().replace(R.id.content_frame, new MainFragment()).commit();
 
@@ -134,7 +135,7 @@ public class MainActivity extends AppCompatActivity
 
 
         if (id == R.id.nav_main) {
-            // Handle the camera action
+            fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new MainFragment()).commit();
         } else if (id == R.id.nav_settings) {
 
         } else if (id == R.id.nav_time) {

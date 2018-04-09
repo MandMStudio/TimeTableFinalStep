@@ -2,20 +2,16 @@ package com.mmstudio.timetable.Fragments;
 
 import android.annotation.SuppressLint;
 import android.app.Fragment;
-import android.app.usage.UsageEvents;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.mmstudio.timetable.DBHelper;
-import com.mmstudio.timetable.Fragments.DataFragment;
 import com.mmstudio.timetable.MainActivity;
 import com.mmstudio.timetable.R;
 
@@ -46,7 +42,6 @@ public class TimeExpandFragment extends Fragment {
 
        tmStart = v.findViewById(R.id.startingTimePicker);
        tmEnd = v.findViewById(R.id.endingTimePicker);
-
         if(!oldValue.equals("")){
             int[] timesOldValues = timeElements(oldValue);
             tmStart.setCurrentHour(timesOldValues[0]);
@@ -58,6 +53,22 @@ public class TimeExpandFragment extends Fragment {
         tmStart.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
             @Override
             public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
+
+                int lastMinute = minute;
+                int minuteToAdd=0;
+                int lastHour = hourOfDay;
+                int hourToAd=0;
+                lastMinute +=Integer.parseInt(MainActivity.appSettings.get(1));
+                if(lastMinute>60){
+                    hourToAd = (int) Math.floor(lastMinute/60);
+                    minute = lastMinute - hourToAd*60;
+                }
+                lastHour+=hourToAd;
+                lastMinute+=minuteToAdd;
+
+
+                tmEnd.setCurrentMinute(lastMinute);
+                tmEnd.setCurrentHour(lastHour);
 
             }
         });
