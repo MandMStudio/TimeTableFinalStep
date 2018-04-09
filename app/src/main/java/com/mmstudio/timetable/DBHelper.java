@@ -15,6 +15,8 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String TABLE_BUILDINGS = "buildings";
     public static final String TABLE_TYPE = "lesson_type";
 
+    public static final String TABLE_SETTINGS = "settings";
+
     public static final String TABLE_MON = "monday";
     public static final String TABLE_TUE = "tuesday";
     public static final String TABLE_WEN = "wednesday";
@@ -27,6 +29,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public static final String KEY_ID = "_id";
     public static final String KEY_VALUE = "value";
+    public static final String KEY_SETTING_NAME = "settingName";
+
 
 
 
@@ -44,6 +48,10 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("create table  " + TABLE_TEACHERS  + " (" + KEY_ID + " integer primary key," + KEY_VALUE + " text)");
         db.execSQL("create table  " + TABLE_TYPE      + " (" + KEY_ID + " integer primary key," + KEY_VALUE + " text)");
         db.execSQL("create table  " + TABLE_BUILDINGS + " (" + KEY_ID + " integer primary key," + KEY_VALUE + " text)");
+
+        db.execSQL("create table  " + TABLE_SETTINGS + " (" + KEY_ID + " integer primary key," + KEY_SETTING_NAME + " text," + KEY_VALUE + " text)");
+        db.rawQuery("INSERT INTO "+ TABLE_SETTINGS + "("+KEY_SETTING_NAME+", "+KEY_VALUE+") VALUES ('timeFormat','24mode')",null);
+        db.rawQuery("INSERT INTO "+ TABLE_SETTINGS + "("+KEY_SETTING_NAME+", "+KEY_VALUE+") VALUES ('lessonLenth','45')",null);
 
         //First Week
         db.execSQL("create table  " + TABLE_MON + "1 (time text,subject text, room text, teacher text,type text, building text)");

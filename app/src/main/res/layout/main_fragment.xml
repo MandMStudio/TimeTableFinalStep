@@ -6,8 +6,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Main Fragment"
+        android:textSize="30sp"
+        tools:layout_editor_absoluteX="91dp"
+        tools:layout_editor_absoluteY="162dp" />
+
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
+        android:id="@+id/floatingActionButton"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginBottom="15dp"
@@ -16,13 +25,5 @@
         android:clickable="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/fab_plus" />
-
-    <com.baoyz.swipemenulistview.SwipeMenuListView
-        android:id="@+id/list_of_data"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-    </com.baoyz.swipemenulistview.SwipeMenuListView>
-
+        app:srcCompat="@drawable/edit" />
 </android.support.constraint.ConstraintLayout>

@@ -1,6 +1,9 @@
 package com.mmstudio.timetable;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.FragmentManager;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -8,11 +11,19 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.style.LeadingMarginSpan;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
+
+import com.mmstudio.timetable.Fragments.DataFragment;
+import com.mmstudio.timetable.Fragments.MainFragment;
+import com.mmstudio.timetable.Fragments.TimeExpandFragment;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+    public static String currentFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,7 +33,8 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
 
-
+        getFragmentManager().beginTransaction().replace(R.id.content_frame, new MainFragment()).commit();
+        currentFragment = "MainFragment";
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -33,13 +45,42 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
     }
 
+    @SuppressLint("NewApi")
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            switch (currentFragment) {
+                case "TimeExpandFragment":
+                    getFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_right_enter, R.anim.slide_right_exit).replace(R.id.content_frame, new DataFragment(DBHelper.TABLE_TIME)).commit();
+                    break;
+                case "DataFragment":
+                    getFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new MainFragment()).commit();
+                    break;
+                case "MainFragment":
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle(R.string.ask_for_exit)
+                            .setCancelable(false)
+                            .setNegativeButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    MainActivity.super.onBackPressed();
+
+                                }
+                            })
+                            .setPositiveButton(R.string.no, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+                                }
+                            });
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                    break;
+
+            }
         }
     }
 
@@ -65,6 +106,7 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressLint("ResourceType")
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -78,24 +120,27 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_time) {
 
+            fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(DBHelper.TABLE_TIME)).commit();
+            this.setTitle(R.string.title_time);
+
         } else if (id == R.id.nav_subjects) {
 
-            fm.beginTransaction().replace(R.id.content_frame, new DataFragment(DBHelper.TABLE_SUB)).commit();
+            fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(DBHelper.TABLE_SUB)).commit();
             this.setTitle(R.string.title_subjects);
 
         } else if (id == R.id.nav_teachers) {
 
-            fm.beginTransaction().replace(R.id.content_frame, new DataFragment(DBHelper.TABLE_TEACHERS)).commit();
+            fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(DBHelper.TABLE_TEACHERS)).commit();
             this.setTitle(R.string.title_teachers);
 
         } else if (id == R.id.nav_lessons_types) {
 
-            fm.beginTransaction().replace(R.id.content_frame, new DataFragment(DBHelper.TABLE_TYPE)).commit();
+            fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(DBHelper.TABLE_TYPE)).commit();
             this.setTitle(R.string.title_subject_type);
 
         } else if (id == R.id.nav_buildings) {
 
-            fm.beginTransaction().replace(R.id.content_frame, new DataFragment(DBHelper.TABLE_BUILDINGS)).commit();
+            fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(DBHelper.TABLE_BUILDINGS)).commit();
             this.setTitle(R.string.title_buildings);
 
         }
