@@ -69,6 +69,20 @@ public class DataFragment extends Fragment {
 
         dataList = readFromDB(getActivity(),selectionType); //read from DB data and add it to dataList
 
+        Collections.sort(dataList, new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                return extractInt(o1) - extractInt(o2);
+            }
+
+            int extractInt(String s) {
+                String num = s.replaceAll("\\D", "");
+                // return 0 if no digits found
+                return num.isEmpty() ? 0 : Integer.parseInt(num);
+            }
+        });
+
+
 
 
 
@@ -209,11 +223,11 @@ public class DataFragment extends Fragment {
                         SQLiteDatabase db = dbHelper.getWritableDatabase();
                         //delete from db
                         db.delete(selectionType,DBHelper.KEY_VALUE+"=?",new String[]{dataList.get(position)});
-
+                        Toast.makeText(getActivity(), dataList.get(position) + " "+getResources().getString(R.string.deleted),Toast.LENGTH_SHORT).show();
                         dataList.remove(position);//removing from local storage
                         adapter.notifyDataSetChanged();//refreshing adapter
                         //notify user of deleting item
-                        Toast.makeText(getActivity(), dataList.get(position) + " "+getResources().getString(R.string.deleted),Toast.LENGTH_SHORT).show();
+
 
 
                         break;
