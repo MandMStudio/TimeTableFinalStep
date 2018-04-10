@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.mmstudio.timetable.Fragments.DataFragment;
 import com.mmstudio.timetable.Fragments.MainFragment;
+import com.mmstudio.timetable.Fragments.SettingFragment;
 import com.mmstudio.timetable.Fragments.TimeExpandFragment;
 
 import java.util.ArrayList;
@@ -125,6 +126,7 @@ public class MainActivity extends AppCompatActivity
 
 
         ArrayList<String> fragmenList = new ArrayList<>();
+        fragmenList.add("settings");
         fragmenList.add(DBHelper.TABLE_TIME);
         fragmenList.add(DBHelper.TABLE_SUB);
         fragmenList.add(DBHelper.TABLE_TEACHERS);
@@ -137,6 +139,16 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_main) {
             fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new MainFragment()).commit();
         } else if (id == R.id.nav_settings) {
+
+            if(currentFragment.equals("MainFragment")){
+                fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new SettingFragment()).commit();
+            }else if(currentFragment.equals("DataFragment")){
+                fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new SettingFragment()).commit();
+            }else {
+                fm.beginTransaction().replace(R.id.content_frame, new SettingFragment()).commit();
+            }
+
+            this.setTitle(R.string.title_settings);
 
         } else if (id == R.id.nav_time) {
 

@@ -48,6 +48,10 @@ public class TimeExpandFragment extends Fragment {
 
        tmStart = v.findViewById(R.id.startingTimePicker);
        tmEnd = v.findViewById(R.id.endingTimePicker);
+
+       tmStart.setIs24HourView(!SettingFragment.is12Mode());
+       tmEnd.setIs24HourView(!SettingFragment.is12Mode());
+
         if(!oldValue.equals("")){
             int[] timesOldValues = timeElements(oldValue);
             tmStart.setCurrentHour(timesOldValues[0]);

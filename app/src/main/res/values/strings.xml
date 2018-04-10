@@ -30,5 +30,6 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="already_exist">This data already exist on you list!</string>
+    <string name="ask_for_time_mode">12 hour time mode?</string>
 
 </resources>

@@ -60,6 +60,7 @@ public class DataFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.data_fragment, container, false);
+        MainActivity.appSettings = DataFragment.readSettingsFromDB(getActivity());
         MainActivity.currentFragment = "DataFragment";
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
@@ -67,7 +68,7 @@ public class DataFragment extends Fragment {
 
 
 
-        dataList = readFromDB(getActivity(),selectionType); //read from DB data and add it to dataList
+        dataList = readFromDB(getActivity(),selectionType);//read from DB data and add it to dataList
 
         Collections.sort(dataList, new Comparator<String>() {
             @Override
@@ -81,6 +82,13 @@ public class DataFragment extends Fragment {
                 return num.isEmpty() ? 0 : Integer.parseInt(num);
             }
         });
+        final List<String> lisOf12ModeTimes = new ArrayList<>(dataList);
+        if(selectionType.equals(DBHelper.TABLE_TIME) && SettingFragment.is12Mode()){
+
+            for (int i = 0; i < dataList.size(); i++) {
+                lisOf12ModeTimes.set(i,to12hourFormat(dataList.get(i)));
+            }
+        }
 
 
 
@@ -91,7 +99,7 @@ public class DataFragment extends Fragment {
         SwipeMenuListView listView = v.findViewById(R.id.list_of_data); //Create ListView with slide buttons
 
 
-        adapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_list_item_1, dataList);//Just simple adapter. You can change view if one item by replacing second parameter to your
+        adapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_list_item_1, selectionType.equals(DBHelper.TABLE_TIME) && SettingFragment.is12Mode() ? lisOf12ModeTimes : dataList);//Just simple adapter. You can change view if one item by replacing second parameter to your
 
         listView.setAdapter(adapter);//accepting adapter to listView
 
@@ -225,6 +233,7 @@ public class DataFragment extends Fragment {
                         db.delete(selectionType,DBHelper.KEY_VALUE+"=?",new String[]{dataList.get(position)});
                         Toast.makeText(getActivity(), dataList.get(position) + " "+getResources().getString(R.string.deleted),Toast.LENGTH_SHORT).show();
                         dataList.remove(position);//removing from local storage
+                        lisOf12ModeTimes.remove(position);
                         adapter.notifyDataSetChanged();//refreshing adapter
                         //notify user of deleting item
 
@@ -412,6 +421,53 @@ public class DataFragment extends Fragment {
 
 
 
+    }
+    public String to12hourFormat(String rowString){
+        String res="";
+        String[] temp1 = rowString.split("-");
+        String[] temp2 = temp1[0].split(":");
+        String[] temp3 = temp1[1].split(":");
+        int[] times = new int[]{Integer.parseInt(temp2[0]),Integer.parseInt(temp2[1]),Integer.parseInt(temp3[0]),Integer.parseInt(temp3[1])};
+        int startTimeInMinute = times[0]*60+times[1];
+        String startHalfOfDay;
+        int startTimeHour;
+        int startTimeMinute;
+        if(startTimeInMinute<=690){
+            startHalfOfDay="AM";
+            startTimeHour = (int) Math.floor(startTimeInMinute/60);
+            startTimeMinute = startTimeInMinute - startTimeHour*60;
+
+
+        }else {
+            startTimeInMinute-=690;
+            startTimeHour = (int) Math.floor(startTimeInMinute/60);
+            startTimeMinute = startTimeInMinute - startTimeHour*60;
+            startHalfOfDay = "PM";
+        }
+
+
+        int endTimeInMinute = times[2]*60+times[3];
+        String endHalfOfDay;
+        int endTimeHour;
+        int endTimeMinute;
+        if(endTimeInMinute<=690){
+            endHalfOfDay="AM";
+            endTimeHour = (int) Math.floor(endTimeInMinute/60);
+            endTimeMinute = endTimeInMinute - endTimeHour*60;
+
+
+        }else {
+            endTimeInMinute-=660;
+            endTimeHour = (int) Math.floor(endTimeInMinute/60);
+            endTimeMinute = endTimeInMinute - endTimeHour*60;
+            endHalfOfDay = "PM";
+        }
+
+
+
+
+        res=startTimeHour+":"+startTimeMinute+startHalfOfDay+"-"+(endTimeHour-1)+":"+endTimeMinute+endHalfOfDay;
+        return res;
     }
 
 }
