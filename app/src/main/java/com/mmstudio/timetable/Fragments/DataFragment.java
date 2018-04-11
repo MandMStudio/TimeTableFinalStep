@@ -233,7 +233,8 @@ public class DataFragment extends Fragment {
                         db.delete(selectionType,DBHelper.KEY_VALUE+"=?",new String[]{dataList.get(position)});
                         Toast.makeText(getActivity(), dataList.get(position) + " "+getResources().getString(R.string.deleted),Toast.LENGTH_SHORT).show();
                         dataList.remove(position);//removing from local storage
-                        lisOf12ModeTimes.remove(position);
+                        if(selectionType.equals(DBHelper.TABLE_TIME))
+                            lisOf12ModeTimes.remove(position);
                         adapter.notifyDataSetChanged();//refreshing adapter
                         //notify user of deleting item
 
@@ -376,7 +377,7 @@ public class DataFragment extends Fragment {
         }
 
         cursor.close();
-
+        db.close();
         return list;
     }
     public static ArrayList<String> readSettingsFromDB(Activity activity) {
@@ -395,7 +396,7 @@ public class DataFragment extends Fragment {
         }
 
         cursor.close();
-
+        db.close();
         return list;
     }
     public static void addDataToDB(Activity activity,String table, String data){
@@ -406,7 +407,7 @@ public class DataFragment extends Fragment {
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.KEY_VALUE, data);
         db.insert(table, null, cv);
-
+        db.close();
 
 
     }
@@ -418,6 +419,8 @@ public class DataFragment extends Fragment {
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.KEY_VALUE, newData);
         db.update(table,cv,DBHelper.KEY_VALUE+"=?",new String[]{oldData});
+        Log.d("tempLog","Success");
+        db.close();
 
 
 
@@ -439,9 +442,10 @@ public class DataFragment extends Fragment {
 
 
         }else {
-            startTimeInMinute-=690;
+            startTimeInMinute-=660;
             startTimeHour = (int) Math.floor(startTimeInMinute/60);
             startTimeMinute = startTimeInMinute - startTimeHour*60;
+            startTimeHour--;
             startHalfOfDay = "PM";
         }
 
@@ -460,13 +464,14 @@ public class DataFragment extends Fragment {
             endTimeInMinute-=660;
             endTimeHour = (int) Math.floor(endTimeInMinute/60);
             endTimeMinute = endTimeInMinute - endTimeHour*60;
+            endTimeHour--;
             endHalfOfDay = "PM";
         }
 
 
 
 
-        res=startTimeHour+":"+startTimeMinute+startHalfOfDay+"-"+(endTimeHour-1)+":"+endTimeMinute+endHalfOfDay;
+        res=startTimeHour+":"+(startTimeMinute<10?("0"+Integer.toString(startTimeMinute)):startTimeMinute)+" "+startHalfOfDay+"-"+endTimeHour+":"+(endTimeMinute<10?"0"+Integer.toString(endTimeMinute):endTimeMinute)+" "+endHalfOfDay;
         return res;
     }
 

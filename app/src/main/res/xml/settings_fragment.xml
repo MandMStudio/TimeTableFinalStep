@@ -1,0 +1,24 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/main_params">
+        <SwitchPreference
+            android:id="@+id/timeMode"
+            android:defaultValue="true"
+            android:key="timeMode"
+            android:summary="@string/description_12mode_format"
+            android:title="@string/title_12mode_format" />
+    </PreferenceCategory>
+
+
+    <PreferenceCategory android:title="@string/additional_params">
+        <Preference
+            android:summary="@string/price"
+            android:title="@string/title_off_ads">
+            <intent android:action="android.settings.SYNC_SETTINGS" />
+        </Preference>
+        <Preference
+            android:summary="@string/description_of_purchases_restore"
+            android:title="@string/restore_purchases">
+            <intent android:action="android.settings.SYNC_SETTINGS" />
+        </Preference>
+    </PreferenceCategory>
+</PreferenceScreen>

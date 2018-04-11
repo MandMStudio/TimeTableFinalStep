@@ -59,8 +59,10 @@ public class TimeExpandFragment extends Fragment {
             tmEnd.setCurrentHour(timesOldValues[2]);
             tmEnd.setCurrentMinute(timesOldValues[3]);
         }else {
-            tmStart.setCurrentHour(startTime()[0]);
-            tmStart.setCurrentMinute(startTime()[1]);
+            if(!(startTime().length==0)) {
+                tmStart.setCurrentHour(startTime()[0]);
+                tmStart.setCurrentMinute(startTime()[1]);
+            }
         }
 
 

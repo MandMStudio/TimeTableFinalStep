@@ -21,7 +21,11 @@
     <com.baoyz.swipemenulistview.SwipeMenuListView
         android:id="@+id/list_of_data"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:paddingBottom="50dp"
+        android:clipToPadding="false">
+
 
     </com.baoyz.swipemenulistview.SwipeMenuListView>
 

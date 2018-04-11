@@ -31,5 +31,14 @@
     <string name="no">No</string>
     <string name="already_exist">This data already exist on you list!</string>
     <string name="ask_for_time_mode">12 hour time mode?</string>
+    <string name="main_params">Main parameters</string>
+    <string name="additional_params">Additional parameters</string>
+    <string name="description_12mode_format">Setting up 12 hour time mode for your time of lessons</string>
+    <string name="title_12mode_format">12 hour time mode?</string>
+    <string name="title_off_ads">Disable ads</string>
+    <string name="restore_purchases">Restore purchases</string>
+    <string name="description_of_purchases_restore">Use this preferences for if you have bought it already</string>
+    <string name="price">Price: 0.99$</string>
 
+    
 </resources>

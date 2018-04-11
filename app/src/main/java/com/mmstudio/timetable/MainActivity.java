@@ -4,7 +4,9 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -27,18 +29,22 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    public static String currentFragment;
-    public static ArrayList<String> appSettings;
+
+
+    public static String currentFragment;//for understanding wich animation need to play
+    public static ArrayList<String> appSettings;//loading app setting from DB to List
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        appSettings = DataFragment.readSettingsFromDB(this);
 
-        getFragmentManager().beginTransaction().replace(R.id.content_frame, new MainFragment()).commit();
+        appSettings = DataFragment.readSettingsFromDB(this);//reading setting fromDB
+
+        getFragmentManager().beginTransaction().replace(R.id.content_frame, new MainFragment()).commit();//On start we want to bew on main fragment
 
         currentFragment = "MainFragment";
 
@@ -55,20 +61,27 @@ public class MainActivity extends AppCompatActivity
     @SuppressLint({"NewApi", "ResourceType"})
     @Override
     public void onBackPressed() {
+        //for closing backside navigation men if opened
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
+            //think where we go on different fragments when we press back button
             switch (currentFragment) {
-                case "TimeExpandFragment":
-                    getFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_right_enter, R.anim.slide_right_exit).replace(R.id.content_frame, new DataFragment(DBHelper.TABLE_TIME)).commit();
-                    break;
-                case "DataFragment":
+                case "TimeExpandFragment": //from time picker fragment to time show
 
+                    getFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_right_enter, R.anim.slide_right_exit).replace(R.id.content_frame, new DataFragment(DBHelper.TABLE_TIME)).commit();
+
+                    break;
+
+                case "DataFragment"://from any type of data fragment to main fragment
 
                     getFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new MainFragment()).commit();
+
                     break;
-                case "MainFragment":
+
+                case "MainFragment"://if we on main than we build a window which ask us from exiting if program
+
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setTitle(R.string.ask_for_exit)
                             .setCancelable(false)
@@ -118,15 +131,14 @@ public class MainActivity extends AppCompatActivity
     @SuppressLint("ResourceType")
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(MenuItem item) {//clicking on slide bar elements
         FragmentManager fm = getFragmentManager();
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
 
-
+        //building a priority list to understan to wich side we want animations
         ArrayList<String> fragmenList = new ArrayList<>();
-        fragmenList.add("settings");
         fragmenList.add(DBHelper.TABLE_TIME);
         fragmenList.add(DBHelper.TABLE_SUB);
         fragmenList.add(DBHelper.TABLE_TEACHERS);
@@ -136,106 +148,196 @@ public class MainActivity extends AppCompatActivity
         String selectionType;
 
 
-        if (id == R.id.nav_main) {
-            fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new MainFragment()).commit();
-        } else if (id == R.id.nav_settings) {
+        if (id == R.id.nav_main) {//main has alway hies prioryty tha mean animations goew always down
+
+            setTimeMode();//its needed to accept changes on Setting fragment. Without that setting fragment dont want work correctly
 
             if(currentFragment.equals("MainFragment")){
-                fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new SettingFragment()).commit();
-            }else if(currentFragment.equals("DataFragment")){
-                fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new SettingFragment()).commit();
+
+                fm.beginTransaction().replace(R.id.content_frame, new MainFragment()).commit();//dont do animation if it is on we now on our self
+
             }else {
+
+                fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new MainFragment()).commit();
+
+            }
+
+        } else if (id == R.id.nav_settings) {//setting has second priority. it always have down animation except from main fragment
+
+            if(currentFragment.equals("MainFragment")){
+
+                fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new SettingFragment()).commit();
+
+            }else if(currentFragment.equals("DataFragment")){
+
+                fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new SettingFragment()).commit();
+
+            }else {
+
                 fm.beginTransaction().replace(R.id.content_frame, new SettingFragment()).commit();
+
             }
 
             this.setTitle(R.string.title_settings);
 
         } else if (id == R.id.nav_time) {
 
+            setTimeMode();
 
             selectionType = DBHelper.TABLE_TIME;
-            int lastIndex = fragmenList.indexOf(DataFragment.lastSelection);
-            int newIndex = fragmenList.indexOf(selectionType);
-            Log.d("mLog",lastIndex +" "+ newIndex);
-            if(lastIndex>newIndex){
-                fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
-            }else if(lastIndex<newIndex){
-                fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
-            }else{
-                fm.beginTransaction().replace(R.id.content_frame, new DataFragment(selectionType)).commit();
-            }
 
+            if(currentFragment.equals("SettingFragment")){
+
+                fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+
+            }else {
+
+
+                int lastIndex = fragmenList.indexOf(DataFragment.lastSelection);
+                int newIndex = fragmenList.indexOf(selectionType);
+
+                if (lastIndex > newIndex) {
+
+                    fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+
+                } else if (lastIndex < newIndex) {
+
+                    fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+
+                } else {
+
+                    fm.beginTransaction().replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+
+                }
+            }
 
             this.setTitle(R.string.title_time);
 
         } else if (id == R.id.nav_subjects) {
 
+            setTimeMode();
+
             selectionType = DBHelper.TABLE_SUB;
-            int lastIndex = fragmenList.indexOf(DataFragment.lastSelection);
-            int newIndex = fragmenList.indexOf(selectionType);
-            Log.d("mLog",lastIndex +" "+ newIndex);
-            if(lastIndex>newIndex){
-                fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
-            }else if(lastIndex<newIndex){
+
+            if(currentFragment.equals("SettingFragment")){
+
                 fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
-            }else{
-                fm.beginTransaction().replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+
+            }else {
+
+                int lastIndex = fragmenList.indexOf(DataFragment.lastSelection);
+                int newIndex = fragmenList.indexOf(selectionType);
+
+                if (lastIndex > newIndex) {
+
+                    fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+
+                } else if (lastIndex < newIndex) {
+
+                    fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+
+                } else {
+
+                    fm.beginTransaction().replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+                }
             }
 
             this.setTitle(R.string.title_subjects);
 
         } else if (id == R.id.nav_teachers) {
 
+            setTimeMode();
+
+
             selectionType = DBHelper.TABLE_TEACHERS;
-            int lastIndex = fragmenList.indexOf(DataFragment.lastSelection);
-            int newIndex = fragmenList.indexOf(selectionType);
-            Log.d("mLog",lastIndex +" "+ newIndex);
-            if(lastIndex>newIndex){
-                fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
-            }else if(lastIndex<newIndex){
+
+            if(currentFragment.equals("SettingFragment")){
+
                 fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
-            }else{
-                fm.beginTransaction().replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+
+            }else {
+
+
+                int lastIndex = fragmenList.indexOf(DataFragment.lastSelection);
+                int newIndex = fragmenList.indexOf(selectionType);
+
+                if (lastIndex > newIndex) {
+
+                    fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+
+                } else if (lastIndex < newIndex) {
+
+                    fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+
+                } else {
+
+                    fm.beginTransaction().replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+                }
             }
-
-            this.setTitle(R.string.title_subjects);
-
 
             this.setTitle(R.string.title_teachers);
 
         } else if (id == R.id.nav_buildings) {
 
-            selectionType = DBHelper.TABLE_BUILDINGS;
-            int lastIndex = fragmenList.indexOf(DataFragment.lastSelection);
-            int newIndex = fragmenList.indexOf(selectionType);
-            Log.d("mLog",lastIndex +" "+ newIndex);
-            if(lastIndex>newIndex){
-                fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
-            }else if(lastIndex<newIndex){
-                fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
-            }else{
-                fm.beginTransaction().replace(R.id.content_frame, new DataFragment(selectionType)).commit();
-            }
+            setTimeMode();
 
-            this.setTitle(R.string.title_subjects);
+            selectionType = DBHelper.TABLE_BUILDINGS;
+
+            if(currentFragment.equals("SettingFragment")){
+
+                fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+
+            }else {
+
+                int lastIndex = fragmenList.indexOf(DataFragment.lastSelection);
+                int newIndex = fragmenList.indexOf(selectionType);
+
+                if (lastIndex > newIndex) {
+
+                    fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+
+                } else if (lastIndex < newIndex) {
+
+                    fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+
+                } else {
+
+                    fm.beginTransaction().replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+
+                }
+            }
 
             this.setTitle(R.string.title_subject_type);
 
         } else if (id == R.id.nav_lessons_types) {
 
-            selectionType = DBHelper.TABLE_TYPE;
-            int lastIndex = fragmenList.indexOf(DataFragment.lastSelection);
-            int newIndex = fragmenList.indexOf(selectionType);
-            Log.d("mLog",lastIndex +" "+ newIndex);
-            if(lastIndex>newIndex){
-                fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
-            }else if(lastIndex<newIndex){
-                fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
-            }else{
-                fm.beginTransaction().replace(R.id.content_frame, new DataFragment(selectionType)).commit();
-            }
+            setTimeMode();
 
-            this.setTitle(R.string.title_subjects);
+            selectionType = DBHelper.TABLE_TYPE;
+
+            if(currentFragment.equals("SettingFragment")){
+
+                fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+
+            }else {
+
+                int lastIndex = fragmenList.indexOf(DataFragment.lastSelection);
+                int newIndex = fragmenList.indexOf(selectionType);
+
+                if (lastIndex > newIndex) {
+
+                    fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+
+                } else if (lastIndex < newIndex) {
+
+                    fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+
+                } else {
+
+                    fm.beginTransaction().replace(R.id.content_frame, new DataFragment(selectionType)).commit();
+
+                }
+            }
 
             this.setTitle(R.string.title_buildings);
 
@@ -244,5 +346,14 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+    public void setTimeMode(){
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        boolean is12timemode = sp.getBoolean("timeMode",true);
+        if(is12timemode){
+            DataFragment.replaceDataToDB(this, DBHelper.TABLE_SETTINGS,"24mode","12mode");
+        }else {
+            DataFragment.replaceDataToDB(this, DBHelper.TABLE_SETTINGS,"12mode","24mode");
+        }
     }
 }
