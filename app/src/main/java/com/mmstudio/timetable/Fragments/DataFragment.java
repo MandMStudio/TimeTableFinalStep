@@ -40,6 +40,7 @@ import java.util.List;
 
 @SuppressLint("ValidFragment")
 public class DataFragment extends Fragment {
+
     public static String lastSelection;
     private String selectionType;
     private List<String> dataList =new ArrayList<>();
@@ -48,6 +49,7 @@ public class DataFragment extends Fragment {
 
     @SuppressLint("ValidFragment")
     public DataFragment(String selectionType) {
+
         this.selectionType = selectionType;
         lastSelection = selectionType;
     }
@@ -59,18 +61,17 @@ public class DataFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         View v = inflater.inflate(R.layout.data_fragment, container, false);
         MainActivity.appSettings = DataFragment.readSettingsFromDB(getActivity());
         MainActivity.currentFragment = "DataFragment";
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-
-
-
         dataList = readFromDB(getActivity(),selectionType);//read from DB data and add it to dataList
 
-        Collections.sort(dataList, new Comparator<String>() {
+        final List<String> lisOf12ModeTimes = new ArrayList<>(dataList);//this is for time becouse only them we want to sort
+        Collections.sort(lisOf12ModeTimes, new Comparator<String>() {
             @Override
             public int compare(String o1, String o2) {
                 return extractInt(o1) - extractInt(o2);
@@ -81,36 +82,29 @@ public class DataFragment extends Fragment {
                 // return 0 if no digits found
                 return num.isEmpty() ? 0 : Integer.parseInt(num);
             }
-        });
-        final List<String> lisOf12ModeTimes = new ArrayList<>(dataList);
-        if(selectionType.equals(DBHelper.TABLE_TIME) && SettingFragment.is12Mode()){
+        });//sorting data for better look
+
+        if(selectionType.equals(DBHelper.TABLE_TIME) && SettingFragment.is12Mode()){//if we on 12hour mode need to format our data
 
             for (int i = 0; i < dataList.size(); i++) {
+
                 lisOf12ModeTimes.set(i,to12hourFormat(dataList.get(i)));
+
             }
         }
 
-
-
-
-
-
-
         SwipeMenuListView listView = v.findViewById(R.id.list_of_data); //Create ListView with slide buttons
 
-
-        adapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_list_item_1, selectionType.equals(DBHelper.TABLE_TIME) && SettingFragment.is12Mode() ? lisOf12ModeTimes : dataList);//Just simple adapter. You can change view if one item by replacing second parameter to your
+        //Just simple adapter. You can change view if one item by replacing second parameter to your
+        adapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_list_item_1, selectionType.equals(DBHelper.TABLE_TIME) && SettingFragment.is12Mode() ? lisOf12ModeTimes : dataList);
 
         listView.setAdapter(adapter);//accepting adapter to listView
-
 
         //Customization of slides buttons
         SwipeMenuCreator creator = new SwipeMenuCreator() {
 
             @Override
             public void create(SwipeMenu menu) {
-
-
 
                 // create "delete" item
                 SwipeMenuItem editItem = new SwipeMenuItem(
@@ -125,8 +119,6 @@ public class DataFragment extends Fragment {
 
                 // add to menu
                 menu.addMenuItem(editItem);
-
-
 
                 // create "delete" item
                 SwipeMenuItem deleteItem = new SwipeMenuItem(
@@ -147,13 +139,14 @@ public class DataFragment extends Fragment {
         // set creator
         listView.setMenuCreator(creator);
 
-
         //Listener of slides buttons
         listView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
             @SuppressLint("ResourceType")
             @Override
             public boolean onMenuItemClick(final int position, SwipeMenu menu, int index) {
+
                 switch (index) {
+
                     case 0:
                         //for working back button
 
@@ -161,7 +154,9 @@ public class DataFragment extends Fragment {
                         // edit button
                         //edit for time
                         if(selectionType.equals(DBHelper.TABLE_TIME)){
+
                             getFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_left_enter,R.anim.slide_left_exit).replace(R.id.content_frame, new TimeExpandFragment(dataList.get(position))).commit();
+
                         }else {
 
                             //edit window for simple data

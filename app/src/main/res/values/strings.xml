@@ -39,6 +39,6 @@
     <string name="restore_purchases">Restore purchases</string>
     <string name="description_of_purchases_restore">Use this preferences for if you have bought it already</string>
     <string name="price">Price: 0.99$</string>
-
-    
+    <string name="email">mmstudio@gmail.com</string>
+    <string name="additional">Additional</string>
 </resources>

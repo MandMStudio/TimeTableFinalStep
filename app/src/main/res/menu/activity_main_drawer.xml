@@ -14,7 +14,7 @@
             android:title="@string/title_settings" />
     </group>
 
-    <item android:title="@string/title_settings">
+    <item android:title="@string/additional">
         <menu>
             <group android:checkableBehavior="single">
                 <item
