@@ -1,10 +1,12 @@
 package com.mmstudio.timetable.Fragments;
 
 import android.annotation.SuppressLint;
-import android.app.Fragment;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,7 +28,8 @@ public class TimeExpandFragment extends Fragment {
     FloatingActionButton fab;
     TimePicker tmStart;
     TimePicker tmEnd;
-
+    boolean is12HourTimeMode;
+    SharedPreferences sp;
 
     public TimeExpandFragment() {
     }
@@ -40,17 +43,17 @@ public class TimeExpandFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.time_expands_fragment, container, false);
-        MainActivity.appSettings = DataFragment.readSettingsFromDB(getActivity());
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        sp = getActivity().getPreferences(Context.MODE_PRIVATE);
 
         MainActivity.currentFragment = "TimeExpandFragment";
 
        tmStart = v.findViewById(R.id.startingTimePicker);
        tmEnd = v.findViewById(R.id.endingTimePicker);
 
-       tmStart.setIs24HourView(!SettingFragment.is12Mode());
-       tmEnd.setIs24HourView(!SettingFragment.is12Mode());
+       tmStart.setIs24HourView(!is12HourTimeMode);
+       tmEnd.setIs24HourView(!is12HourTimeMode);
 
         if(!oldValue.equals("")){
             int[] timesOldValues = timeElements(oldValue);
@@ -68,15 +71,15 @@ public class TimeExpandFragment extends Fragment {
 
 
 
-        if(!MainActivity.appSettings.get(2).equals("yes")){
-
+        if(!sp.getBoolean("firsTimePick",false)){
+            Log.d("firstLog","Firaglafasfgasg");
             tmStart.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
                 @Override
                 public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
 
 
                     int timeInMinute = hourOfDay*60+minute;
-                    timeInMinute += Integer.parseInt(MainActivity.appSettings.get(1));
+                    timeInMinute += sp.getInt("timeOfSubject",45);
                     int k=(int) Math.floor(timeInMinute/60);
                     int newHour = k;
                     int newMinute = timeInMinute-k*60;
@@ -100,11 +103,11 @@ public class TimeExpandFragment extends Fragment {
                     if(DataFragment.readFromDB(getActivity(),DBHelper.TABLE_TIME).contains(newValue)){
                         Toast.makeText(getActivity(),R.string.already_exist,Toast.LENGTH_SHORT).show();
                     }else {
-                        if(MainActivity.appSettings.get(2).equals("yes")){
-                            DataFragment.replaceDataToDB(getActivity(),DBHelper.TABLE_SETTINGS,"yes","no");
+                        if(sp.getBoolean("firsTimePick",false)){
+                           sp.edit().putBoolean("firsTimePick",true);
                             int timeOfLesson = (tmEnd.getCurrentHour()*60+tmEnd.getCurrentMinute()) - (tmStart.getCurrentHour()*60+tmStart.getCurrentMinute());
-                            Toast.makeText(getActivity(),Integer.toString(timeOfLesson),Toast.LENGTH_SHORT).show();
-                            DataFragment.replaceDataToDB(getActivity(),DBHelper.TABLE_SETTINGS,"45",Integer.toString(timeOfLesson));
+                            sp.edit().putInt("timeOfSubject",timeOfLesson);
+                            sp.edit().commit();
                         }
                         DataFragment.addDataToDB(getActivity(), DBHelper.TABLE_TIME, newValue);
                         getFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_right_enter, R.anim.slide_right_exit).replace(R.id.content_frame, new DataFragment(DBHelper.TABLE_TIME)).commit();

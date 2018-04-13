@@ -2,28 +2,25 @@ package com.mmstudio.timetable;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.FragmentManager;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.style.LeadingMarginSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.mmstudio.timetable.Fragments.DataFragment;
 import com.mmstudio.timetable.Fragments.MainFragment;
 import com.mmstudio.timetable.Fragments.SettingFragment;
-import com.mmstudio.timetable.Fragments.TimeExpandFragment;
 
 import java.util.ArrayList;
 
@@ -32,7 +29,7 @@ public class MainActivity extends AppCompatActivity
 
 
     public static String currentFragment;//for understanding wich animation need to play
-    public static ArrayList<String> appSettings;//loading app setting from DB to List
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,9 +39,8 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        appSettings = DataFragment.readSettingsFromDB(this);//reading setting fromDB
 
-        getFragmentManager().beginTransaction().replace(R.id.content_frame, new MainFragment()).commit();//On start we want to bew on main fragment
+        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, new MainFragment()).commit();//On start we want to bew on main fragment
 
         currentFragment = "MainFragment";
 
@@ -70,13 +66,13 @@ public class MainActivity extends AppCompatActivity
             switch (currentFragment) {
                 case "TimeExpandFragment": //from time picker fragment to time show
 
-                    getFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_right_enter, R.anim.slide_right_exit).replace(R.id.content_frame, new DataFragment(DBHelper.TABLE_TIME)).commit();
+                    getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_right_enter, R.anim.slide_right_exit).replace(R.id.content_frame, new DataFragment(DBHelper.TABLE_TIME)).commit();
 
                     break;
 
                 case "DataFragment"://from any type of data fragment to main fragment
 
-                    getFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new MainFragment()).commit();
+                    getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new MainFragment()).commit();
 
                     break;
 
@@ -132,7 +128,7 @@ public class MainActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {//clicking on slide bar elements
-        FragmentManager fm = getFragmentManager();
+        FragmentManager fm = getSupportFragmentManager();
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
@@ -147,32 +143,32 @@ public class MainActivity extends AppCompatActivity
 
         String selectionType;
 
-
         if (id == R.id.nav_main) {//main has alway hies prioryty tha mean animations goew always down
 
-            setTimeMode();//its needed to accept changes on Setting fragment. Without that setting fragment dont want work correctly
 
-            if(currentFragment.equals("MainFragment")){
+            if (currentFragment.equals("MainFragment")) {
 
                 fm.beginTransaction().replace(R.id.content_frame, new MainFragment()).commit();//dont do animation if it is on we now on our self
 
-            }else {
+            } else {
 
                 fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new MainFragment()).commit();
 
             }
 
+            setTitle(R.string.app_name);
+
         } else if (id == R.id.nav_settings) {//setting has second priority. it always have down animation except from main fragment
 
-            if(currentFragment.equals("MainFragment")){
+            if (currentFragment.equals("MainFragment")) {
 
-                fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new SettingFragment()).commit();
+                getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new SettingFragment()).commit();
 
-            }else if(currentFragment.equals("DataFragment")){
+            } else if (currentFragment.equals("DataFragment")) {
 
                 fm.beginTransaction().setCustomAnimations(R.anim.slide_down_start, R.anim.slide_down_exit).replace(R.id.content_frame, new SettingFragment()).commit();
 
-            }else {
+            } else {
 
                 fm.beginTransaction().replace(R.id.content_frame, new SettingFragment()).commit();
 
@@ -182,15 +178,14 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_time) {
 
-            setTimeMode();
 
             selectionType = DBHelper.TABLE_TIME;
 
-            if(currentFragment.equals("SettingFragment")){
+            if (currentFragment.equals("SettingFragment")) {
 
                 fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
 
-            }else {
+            } else {
 
 
                 int lastIndex = fragmenList.indexOf(DataFragment.lastSelection);
@@ -215,15 +210,14 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_subjects) {
 
-            setTimeMode();
 
             selectionType = DBHelper.TABLE_SUB;
 
-            if(currentFragment.equals("SettingFragment")){
+            if (currentFragment.equals("SettingFragment")) {
 
                 fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
 
-            }else {
+            } else {
 
                 int lastIndex = fragmenList.indexOf(DataFragment.lastSelection);
                 int newIndex = fragmenList.indexOf(selectionType);
@@ -246,16 +240,14 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_teachers) {
 
-            setTimeMode();
-
 
             selectionType = DBHelper.TABLE_TEACHERS;
 
-            if(currentFragment.equals("SettingFragment")){
+            if (currentFragment.equals("SettingFragment")) {
 
                 fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
 
-            }else {
+            } else {
 
 
                 int lastIndex = fragmenList.indexOf(DataFragment.lastSelection);
@@ -279,15 +271,14 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_buildings) {
 
-            setTimeMode();
 
             selectionType = DBHelper.TABLE_BUILDINGS;
 
-            if(currentFragment.equals("SettingFragment")){
+            if (currentFragment.equals("SettingFragment")) {
 
                 fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
 
-            }else {
+            } else {
 
                 int lastIndex = fragmenList.indexOf(DataFragment.lastSelection);
                 int newIndex = fragmenList.indexOf(selectionType);
@@ -311,15 +302,14 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_lessons_types) {
 
-            setTimeMode();
 
             selectionType = DBHelper.TABLE_TYPE;
 
-            if(currentFragment.equals("SettingFragment")){
+            if (currentFragment.equals("SettingFragment")) {
 
                 fm.beginTransaction().setCustomAnimations(R.anim.slide_up_start, R.anim.slide_up_exit).replace(R.id.content_frame, new DataFragment(selectionType)).commit();
 
-            }else {
+            } else {
 
                 int lastIndex = fragmenList.indexOf(DataFragment.lastSelection);
                 int newIndex = fragmenList.indexOf(selectionType);
@@ -347,13 +337,6 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-    public void setTimeMode(){
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        boolean is12timemode = sp.getBoolean("timeMode",true);
-        if(is12timemode){
-            DataFragment.replaceDataToDB(this, DBHelper.TABLE_SETTINGS,"24mode","12mode");
-        }else {
-            DataFragment.replaceDataToDB(this, DBHelper.TABLE_SETTINGS,"12mode","24mode");
-        }
-    }
+
+
 }

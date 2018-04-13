@@ -1,0 +1,43 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:key="temp">
+    <Preference
+        android:key="subjects"
+        android:summary="@string/description_of_selection_subject"
+        android:title="@string/title_subjects"
+        app:key="subjects"></Preference>
+    <PreferenceCategory android:title="@string/time">
+        <Preference
+            android:key="time"
+            android:summary="@string/description_of_selection_time"
+            android:title="@string/title_time"
+            app:key="time"></Preference>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/title_additional_data">
+        <Preference
+            android:key="building"
+            android:summary="@string/description_of_selection_building"
+            android:title="@string/title_building"
+            app:key="buildings"></Preference>
+        <EditTextPreference
+            android:defaultValue="*"
+            android:inputType="textCapSentences|textAutoCorrect"
+            android:key="room"
+            android:summary="@string/description_of_selection_room"
+            android:title="@string/title_room_class" />
+        <Preference
+            android:key="teachers"
+            android:summary="@string/description_of_selection_teacher"
+            android:title="@string/title_teacher"
+            app:key="teacher"></Preference>
+        <Preference
+            android:key="lesson_type"
+            android:summary="@string/description_of_selection_type"
+            android:title="@string/title_lesson_type"
+            app:key="lesson_type"></Preference>
+    </PreferenceCategory>
+    <Preference
+        android:key=""
+        android:summary=""
+        android:title=""></Preference>
+</PreferenceScreen>

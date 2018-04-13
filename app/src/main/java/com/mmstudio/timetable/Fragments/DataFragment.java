@@ -3,7 +3,6 @@ package com.mmstudio.timetable.Fragments;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,6 +13,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
 import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -46,6 +46,7 @@ public class DataFragment extends Fragment {
     private List<String> dataList =new ArrayList<>();
     private FloatingActionButton fab;
     private ArrayAdapter<String> adapter;
+    List<String> lisOf12ModeTimes;
 
     @SuppressLint("ValidFragment")
     public DataFragment(String selectionType) {
@@ -63,14 +64,13 @@ public class DataFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View v = inflater.inflate(R.layout.data_fragment, container, false);
-        MainActivity.appSettings = DataFragment.readSettingsFromDB(getActivity());
         MainActivity.currentFragment = "DataFragment";
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
         dataList = readFromDB(getActivity(),selectionType);//read from DB data and add it to dataList
 
-        final List<String> lisOf12ModeTimes = new ArrayList<>(dataList);//this is for time becouse only them we want to sort
+        lisOf12ModeTimes = new ArrayList<>(dataList);//this is for time becouse only them we want to sort
         Collections.sort(lisOf12ModeTimes, new Comparator<String>() {
             @Override
             public int compare(String o1, String o2) {
@@ -84,7 +84,7 @@ public class DataFragment extends Fragment {
             }
         });//sorting data for better look
 
-        if(selectionType.equals(DBHelper.TABLE_TIME) && SettingFragment.is12Mode()){//if we on 12hour mode need to format our data
+        if(selectionType.equals(DBHelper.TABLE_TIME) && SettingFragment.is12Mode(getActivity())){//if we on 12hour mode need to format our data
 
             for (int i = 0; i < dataList.size(); i++) {
 
@@ -96,7 +96,7 @@ public class DataFragment extends Fragment {
         SwipeMenuListView listView = v.findViewById(R.id.list_of_data); //Create ListView with slide buttons
 
         //Just simple adapter. You can change view if one item by replacing second parameter to your
-        adapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_list_item_1, selectionType.equals(DBHelper.TABLE_TIME) && SettingFragment.is12Mode() ? lisOf12ModeTimes : dataList);
+        adapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_list_item_1, selectionType.equals(DBHelper.TABLE_TIME) && SettingFragment.is12Mode(getActivity()) ? lisOf12ModeTimes : dataList);
 
         listView.setAdapter(adapter);//accepting adapter to listView
 
@@ -375,25 +375,6 @@ public class DataFragment extends Fragment {
         db.close();
         return list;
     }
-    public static ArrayList<String> readSettingsFromDB(Activity activity) {
-        DBHelper dbHelper = new DBHelper(activity);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        ArrayList<String> list = new ArrayList<>();
-
-        Cursor cursor = db.query(DBHelper.TABLE_SETTINGS, null, null, null, null, null, null, null);
-
-        if(cursor.getCount() !=0){
-            while (cursor.moveToNext()){
-                list.add(cursor.getString(2));
-            }
-        }else{
-
-        }
-
-        cursor.close();
-        db.close();
-        return list;
-    }
     public static void addDataToDB(Activity activity,String table, String data){
 
         DBHelper dbHelper = new DBHelper(activity);
@@ -414,7 +395,6 @@ public class DataFragment extends Fragment {
         ContentValues cv = new ContentValues();
         cv.put(DBHelper.KEY_VALUE, newData);
         db.update(table,cv,DBHelper.KEY_VALUE+"=?",new String[]{oldData});
-        Log.d("tempLog","Success");
         db.close();
 
 

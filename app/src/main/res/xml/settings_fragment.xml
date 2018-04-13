@@ -1,11 +1,26 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="@string/main_params">
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:id="@+id/timeMode"
             android:defaultValue="true"
             android:key="timeMode"
             android:summary="@string/description_12mode_format"
             android:title="@string/title_12mode_format" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/title_two_weeks">
+
+        <SwitchPreferenceCompat
+            android:id="@+id/twoWeeksMode"
+            android:defaultValue="false"
+            android:key="twoWeeksMode"
+            android:title="@string/two_weeks_mode" />
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@array/listName"
+            android:entryValues="@array/listValue"
+            android:key="currentWeek"
+            android:summary="@string/current_week_description"
+            android:title="@string/current_week" />
     </PreferenceCategory>
 
 

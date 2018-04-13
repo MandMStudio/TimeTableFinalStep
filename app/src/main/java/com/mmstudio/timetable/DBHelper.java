@@ -54,6 +54,8 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("INSERT INTO "+ TABLE_SETTINGS + "("+KEY_SETTING_NAME+", "+KEY_VALUE+") VALUES ('timeFormat','24mode')");
         db.execSQL("INSERT INTO "+ TABLE_SETTINGS + "("+KEY_SETTING_NAME+", "+KEY_VALUE+") VALUES ('lessonLenth','45')");
         db.execSQL("INSERT INTO "+ TABLE_SETTINGS + "("+KEY_SETTING_NAME+", "+KEY_VALUE+") VALUES ('firstTimePick','yes')");
+        db.execSQL("INSERT INTO "+ TABLE_SETTINGS + "("+KEY_SETTING_NAME+", "+KEY_VALUE+") VALUES ('WeeksMode','oneWeekMode')");
+        db.execSQL("INSERT INTO "+ TABLE_SETTINGS + "("+KEY_SETTING_NAME+", "+KEY_VALUE+") VALUES ('firstMondayDate','none')");
 
         //First Week
         db.execSQL("create table  " + TABLE_MON + "1 (time text,subject text, room text, teacher text,type text, building text)");

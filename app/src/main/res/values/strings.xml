@@ -14,7 +14,6 @@
     <string name="title_buildings">Buildings</string>
     <string name="title_subject_type">Subjects Types</string>
     <string name="title_display">Time Table</string>
-    <string name="title_two_weeks">Two weeks</string>
     <string name="add_data_item_title">Add data</string>
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
@@ -41,4 +40,20 @@
     <string name="price">Price: 0.99$</string>
     <string name="email">mmstudio@gmail.com</string>
     <string name="additional">Additional</string>
+    <string name="description_of_selection_subject">Choose subject</string>
+    <string name="description_of_selection_time">Choose subject time</string>
+    <string name="description_of_selection_building">Choose subject building</string>
+    <string name="description_of_selection_room">Choose subject room/class</string>
+    <string name="description_of_selection_teacher">Choose subject teacher</string>
+    <string name="description_of_selection_type">Choose subject type</string>
+    <string name="time">Time</string>
+    <string name="title_building">Building</string>
+    <string name="title_additional_data">Additional Data</string>
+    <string name="title_room_class">Room/Class</string>
+    <string name="title_teacher">Teacher</string>
+    <string name="title_lesson_type">Lesson type</string>
+    <string name="title_two_weeks">Two weeks</string>
+    <string name="two_weeks_mode">Two weeks mode?</string>
+    <string name="current_week">Current Week</string>
+    <string name="current_week_description">Select the current week</string>
 </resources>
