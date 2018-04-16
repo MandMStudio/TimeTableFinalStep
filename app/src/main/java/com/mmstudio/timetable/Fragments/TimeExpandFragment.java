@@ -100,7 +100,7 @@ public class TimeExpandFragment extends Fragment {
             public void onClick(View v) {
                 String newValue = (tmStart.getCurrentHour()==0?"00":tmStart.getCurrentHour()) + ":" + (tmStart.getCurrentMinute()==0?"00":tmStart.getCurrentMinute()) + "-" + (tmEnd.getCurrentHour()==0?"00":tmEnd.getCurrentHour()) + ":" + (tmEnd.getCurrentMinute()==0?"00":tmEnd.getCurrentMinute());
                 if(oldValue.equals("")) {
-                    if(DataFragment.readFromDB(getActivity(),DBHelper.TABLE_TIME).contains(newValue)){
+                    if(MainActivity.subjectTimeData.contains(newValue)){
                         Toast.makeText(getActivity(),R.string.already_exist,Toast.LENGTH_SHORT).show();
                     }else {
                         if(sp.getBoolean("firsTimePick",false)){
@@ -110,6 +110,7 @@ public class TimeExpandFragment extends Fragment {
                             sp.edit().commit();
                         }
                         DataFragment.addDataToDB(getActivity(), DBHelper.TABLE_TIME, newValue);
+                        MainActivity.subjectTimeData.add(newValue);
                         getFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_right_enter, R.anim.slide_right_exit).replace(R.id.content_frame, new DataFragment(DBHelper.TABLE_TIME)).commit();
                     }
                     }else{

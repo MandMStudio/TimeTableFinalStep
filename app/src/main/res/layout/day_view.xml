@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/dayView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="5dp"
+    android:weightSum="0">
+
+
+    <TextView
+        android:id="@+id/dayName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="40dp"
+        android:fontFamily="sans-serif-light"
+        android:paddingBottom="6dp"
+        android:text="Monday"
+        android:textColor="#919191"
+        android:textSize="22sp" />
+
+    <LinearLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/dayName"
+        android:layout_marginLeft="10dp"
+        android:orientation="vertical"></LinearLayout>
+
+    <ImageButton
+        android:id="@+id/add_butt"
+        android:layout_width="50dp"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:layout_weight="0"
+        android:background="@android:color/transparent"
+        android:scaleType="fitCenter"
+        app:srcCompat="@drawable/add" />
+
+
+</LinearLayout>

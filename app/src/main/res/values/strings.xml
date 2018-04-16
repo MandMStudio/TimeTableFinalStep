@@ -56,4 +56,14 @@
     <string name="two_weeks_mode">Two weeks mode?</string>
     <string name="current_week">Current Week</string>
     <string name="current_week_description">Select the current week</string>
+    <string name="reminder_for_week_selection">Pleas select the current week below!</string>
+    //Days Of Week
+    <string name="monday">Monday</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="wednesday">Wednesday</string>
+    <string name="thursday">Thursday</string>
+    <string name="friday">Friday</string>
+    <string name="saturday">Saturday</string>
+    <string name="sunday">Sunday</string>
+    
 </resources>

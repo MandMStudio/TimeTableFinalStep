@@ -1,5 +1,6 @@
 package com.mmstudio.timetable.Fragments;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,15 +13,25 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.mmstudio.timetable.DBHelper;
+import com.mmstudio.timetable.Items.SubjectItem;
 import com.mmstudio.timetable.MainActivity;
 import com.mmstudio.timetable.R;
 import com.mmstudio.timetable.ViewPagerAdapter;
 
+@SuppressLint("ValidFragment")
 public class MainFragment extends Fragment {
 
     ViewPager viewPager;
     TabLayout tabLayout;
+    private int showMode;
+
+    @SuppressLint("ValidFragment")
+    public MainFragment(int showMode) {
+        this.showMode = showMode;
+    }
 
     @Nullable
     @Override
@@ -54,6 +65,9 @@ public class MainFragment extends Fragment {
 
 
 
+
+
+
         return v;
     }
 
@@ -70,8 +84,8 @@ public class MainFragment extends Fragment {
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
-        adapter.addFragment(new WeekFragment("FirstWeek"), "Firs Week");
-        adapter.addFragment(new WeekFragment("SecondWeek"), "Second Week");
+        adapter.addFragment(new WeekFragment(1, showMode), "First Week");
+        adapter.addFragment(new WeekFragment(2,showMode), "Second Week");
         viewPager.setAdapter(adapter);
     }
 

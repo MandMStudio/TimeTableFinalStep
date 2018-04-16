@@ -40,18 +40,23 @@ import java.util.List;
 
 @SuppressLint("ValidFragment")
 public class DataFragment extends Fragment {
-
+    private boolean timeData = false;
     public static String lastSelection;
     private String selectionType;
     private List<String> dataList =new ArrayList<>();
+    private List<String> storingData =new ArrayList<>();
     private FloatingActionButton fab;
     private ArrayAdapter<String> adapter;
-    List<String> lisOf12ModeTimes;
+
+
 
     @SuppressLint("ValidFragment")
     public DataFragment(String selectionType) {
 
         this.selectionType = selectionType;
+        if(selectionType.equals(DBHelper.TABLE_TIME)){
+            timeData = true;
+        }
         lastSelection = selectionType;
     }
 
@@ -68,10 +73,11 @@ public class DataFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        dataList = readFromDB(getActivity(),selectionType);//read from DB data and add it to dataList
+        dataList = rightData(selectionType);
 
-        lisOf12ModeTimes = new ArrayList<>(dataList);//this is for time becouse only them we want to sort
-        Collections.sort(lisOf12ModeTimes, new Comparator<String>() {
+
+
+        Collections.sort(dataList, new Comparator<String>() {
             @Override
             public int compare(String o1, String o2) {
                 return extractInt(o1) - extractInt(o2);
@@ -84,19 +90,12 @@ public class DataFragment extends Fragment {
             }
         });//sorting data for better look
 
-        if(selectionType.equals(DBHelper.TABLE_TIME) && SettingFragment.is12Mode(getActivity())){//if we on 12hour mode need to format our data
 
-            for (int i = 0; i < dataList.size(); i++) {
-
-                lisOf12ModeTimes.set(i,to12hourFormat(dataList.get(i)));
-
-            }
-        }
 
         SwipeMenuListView listView = v.findViewById(R.id.list_of_data); //Create ListView with slide buttons
 
         //Just simple adapter. You can change view if one item by replacing second parameter to your
-        adapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_list_item_1, selectionType.equals(DBHelper.TABLE_TIME) && SettingFragment.is12Mode(getActivity()) ? lisOf12ModeTimes : dataList);
+        adapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_list_item_1, dataList);
 
         listView.setAdapter(adapter);//accepting adapter to listView
 
@@ -143,96 +142,24 @@ public class DataFragment extends Fragment {
         listView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
             @SuppressLint("ResourceType")
             @Override
-            public boolean onMenuItemClick(final int position, SwipeMenu menu, int index) {
+            public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
 
                 switch (index) {
 
                     case 0:
                         //for working back button
 
+                        editButton(position);
 
                         // edit button
                         //edit for time
-                        if(selectionType.equals(DBHelper.TABLE_TIME)){
 
-                            getFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_left_enter,R.anim.slide_left_exit).replace(R.id.content_frame, new TimeExpandFragment(dataList.get(position))).commit();
-
-                        }else {
-
-                            //edit window for simple data
-                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                            //edit textField
-                            final EditText editText = new EditText(getActivity());
-                            //Focus keyboard on TextField
-                            editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                                @Override
-                                public void onFocusChange(View v, boolean hasFocus) {
-                                    editText.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                                            imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
-                                        }
-                                    });
-                                }
-                            });
-                            editText.requestFocus();
-                            //Set keyboard type where it have done button
-                            editText.setInputType(InputType.TYPE_CLASS_TEXT);
-
-
-                            //set text of text field to oldValue
-                            editText.setText(dataList.get(position));
-                            //setting of some customizing
-                            builder.setTitle(R.string.edit_data).
-                                    setView(editText).
-                                    setCancelable(true)
-                                    //cancel button actions
-                                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.cancel();
-
-                                        }
-                                    })
-                                    //accepting change button actions
-                                    .setPositiveButton(R.string.accept, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-
-
-                                            String newData = String.valueOf(editText.getText());//get new value of Text field
-
-                                            replaceDataToDB(getActivity(), selectionType, dataList.get(position), newData);//replacing data in DB
-
-                                            dataList.set(position, newData);//replacing data in dataList(local storage)
-
-                                            adapter.notifyDataSetChanged();//refreshing adapter to confirm changes
-                                        }
-                                    });
-
-
-                            AlertDialog alert = builder.create();
-                            alert.show();
-
-                        }
 
                         break;
                     case 1:
                         // delete button
 
-                        //connecting to DB
-                        DBHelper dbHelper = new DBHelper(getActivity());
-                        SQLiteDatabase db = dbHelper.getWritableDatabase();
-                        //delete from db
-                        db.delete(selectionType,DBHelper.KEY_VALUE+"=?",new String[]{dataList.get(position)});
-                        Toast.makeText(getActivity(), dataList.get(position) + " "+getResources().getString(R.string.deleted),Toast.LENGTH_SHORT).show();
-                        dataList.remove(position);//removing from local storage
-                        if(selectionType.equals(DBHelper.TABLE_TIME))
-                            lisOf12ModeTimes.remove(position);
-                        adapter.notifyDataSetChanged();//refreshing adapter
-                        //notify user of deleting item
-
+                        deleteButton(position);
 
 
                         break;
@@ -250,92 +177,8 @@ public class DataFragment extends Fragment {
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //for working back button
 
-
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());//Buider of adding window
-                    final EditText editText = new EditText(getActivity());//text field where we go write user data
-
-
-                    //Focus keyboard on TextField
-                    editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                        @Override
-                        public void onFocusChange(View v, boolean hasFocus) {
-                            editText.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                                    imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
-                                }
-                            });
-                        }
-                    });
-                    editText.requestFocus();
-
-                    //Set keyboard type where it have done button
-                    editText.setInputType(InputType.TYPE_CLASS_TEXT);
-
-                    //starting customize our window
-                    builder.setTitle(R.string.add_data_item_title).
-                            setView(editText).
-                            setCancelable(true)
-                            //cancel button actions
-                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
-                                }
-                            })
-                            //add button actions
-                            .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                            String newData = String.valueOf(editText.getText());//data from text field
-
-                            if(!newData.isEmpty()){ //if text field is not empty than we can add it to database and our local storage
-                                addDataToDB(getActivity(), selectionType, newData);//adding new data to db
-                                dataList.add(newData);//adding data to local storage
-                                adapter.notifyDataSetChanged();//refreshing adapter to show changes
-
-
-                            }else{
-                                //show some text if text field is empty
-                                Toast.makeText(getActivity(),R.string.empty_data,Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-
-                    //building window
-                    final AlertDialog alert = builder.create();
-                    alert.show();
-
-                    //customizing our done button on keyboard
-                    editText.setOnKeyListener(new View.OnKeyListener() {
-                        @Override
-                        public boolean onKey(View v, int keyCode, KeyEvent event) {
-                            if(event.getAction() == KeyEvent.ACTION_DOWN){//press down
-                                    if(keyCode == KeyEvent.KEYCODE_ENTER){//done button
-
-                                        //Next is the same like in add button on simple add window
-                                        String newData = String.valueOf(editText.getText());
-
-                                        if(!newData.isEmpty()){
-                                            addDataToDB(getActivity(), selectionType, newData);
-                                            dataList.add(newData);
-                                            adapter.notifyDataSetChanged();
-                                            editText.clearFocus();
-                                            alert.cancel();
-
-                                        }else{
-                                            Toast.makeText(getActivity(),R.string.empty_data,Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                            }
-                            return false;
-                        }
-                    });
-
+                        fabClick();
                 }
             });
             //Its fab click for time data
@@ -356,6 +199,15 @@ public class DataFragment extends Fragment {
         return v;
     }
 
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        wrightData(selectionType);
+
+    }
+
+
+
     public static ArrayList<String> readFromDB(Activity activity, String table) {
         DBHelper dbHelper = new DBHelper(activity);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -375,32 +227,84 @@ public class DataFragment extends Fragment {
         db.close();
         return list;
     }
-    public static void addDataToDB(Activity activity,String table, String data){
 
+    public static String[][] readDayFromDB(Activity activity,String table){
         DBHelper dbHelper = new DBHelper(activity);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ArrayList<String> list = new ArrayList<>();
 
-        ContentValues cv = new ContentValues();
-        cv.put(DBHelper.KEY_VALUE, data);
-        db.insert(table, null, cv);
+        Cursor cursor = db.query(table, null, null, null, null, null, null, null);
+
+        if(cursor.getCount() !=0){
+            while (cursor.moveToNext()){
+                list.add(cursor.getString(0));
+                list.add(cursor.getString(1));
+                list.add(cursor.getString(2));
+                list.add(cursor.getString(3));
+                list.add(cursor.getString(4));
+                list.add(cursor.getString(5));
+            }
+        }else{
+            return new String[][]{};
+        }
+
+        cursor.close();
         db.close();
+
+        String[][] res = new String[list.size()/6][6];
+        for (int i = 0; i < res.length; i++) {
+            for (int j = 0; j < 6; j++) {
+                res[i][j] = list.get(i*6+j);
+            }
+        }
+
+
+        return res;
+    }
+
+    public static void addDataToDB(final Activity activity, final String table, final String data){
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                DBHelper dbHelper = new DBHelper(activity);
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+                ContentValues cv = new ContentValues();
+                cv.put(DBHelper.KEY_VALUE, data);
+                db.insert(table, null, cv);
+                db.close();
+            }
+        }).start();
+
+
 
 
     }
-    public static void replaceDataToDB(Activity activity,String table, String oldData,String newData){
+    public static void replaceDataToDB(final Activity activity, final String table, final String oldData, final String newData){
 
-        DBHelper dbHelper = new DBHelper(activity);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                DBHelper dbHelper = new DBHelper(activity);
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        ContentValues cv = new ContentValues();
-        cv.put(DBHelper.KEY_VALUE, newData);
-        db.update(table,cv,DBHelper.KEY_VALUE+"=?",new String[]{oldData});
-        db.close();
+                ContentValues cv = new ContentValues();
+                cv.put(DBHelper.KEY_VALUE, newData);
+                db.update(table,cv,DBHelper.KEY_VALUE+"=?",new String[]{oldData});
+                db.close();
+            }
+        }).start();
+
+
 
 
 
     }
-    public String to12hourFormat(String rowString){
+
+
+
+    public static String to12hourFormat(String rowString){
         String res="";
         String[] temp1 = rowString.split("-");
         String[] temp2 = temp1[0].split(":");
@@ -448,6 +352,224 @@ public class DataFragment extends Fragment {
 
         res=startTimeHour+":"+(startTimeMinute<10?("0"+Integer.toString(startTimeMinute)):startTimeMinute)+" "+startHalfOfDay+"-"+endTimeHour+":"+(endTimeMinute<10?"0"+Integer.toString(endTimeMinute):endTimeMinute)+" "+endHalfOfDay;
         return res;
+    }
+    private ArrayList<String> rightData(String row){
+
+        switch (row){
+            case DBHelper.TABLE_SUB:
+                return MainActivity.subjectsData;
+            case DBHelper.TABLE_TEACHERS:
+                return MainActivity.subjectTeacherData;
+            case DBHelper.TABLE_TIME:
+                return MainActivity.subjectTimeData;
+            case DBHelper.TABLE_BUILDINGS:
+                return MainActivity.buildingsData;
+            case DBHelper.TABLE_TYPE:
+                return MainActivity.subjectTypesData;
+                default:
+                    return new ArrayList<>();
+        }
+
+
+    }
+    private void wrightData(String row){
+
+        switch (row){
+            case DBHelper.TABLE_SUB:
+                MainActivity.subjectsData = (ArrayList<String>) dataList;
+                break;
+            case DBHelper.TABLE_TEACHERS:
+               MainActivity.subjectTeacherData = (ArrayList<String>) dataList;
+                break;
+            case DBHelper.TABLE_TIME:
+                MainActivity.subjectTimeData= (ArrayList<String>) dataList;
+                break;
+            case DBHelper.TABLE_BUILDINGS:
+               MainActivity.buildingsData= (ArrayList<String>) dataList;
+                break;
+            case DBHelper.TABLE_TYPE:
+               MainActivity.subjectTypesData= (ArrayList<String>) dataList;
+                break;
+
+        }
+
+
+    }
+
+    private void editButton(final int position){
+        if(timeData){
+
+            getFragmentManager().beginTransaction().setCustomAnimations(R.anim.slide_left_enter,R.anim.slide_left_exit).replace(R.id.content_frame, new TimeExpandFragment(dataList.get(position))).commit();
+
+        }else {
+
+            //edit window for simple data
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            //edit textField
+            final EditText editText = new EditText(getActivity());
+            //Focus keyboard on TextField
+            editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    editText.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+                        }
+                    });
+                }
+            });
+            editText.requestFocus();
+            //Set keyboard type where it have done button
+            editText.setInputType(InputType.TYPE_CLASS_TEXT);
+
+
+            //set text of text field to oldValue
+            editText.setText(dataList.get(position));
+            //setting of some customizing
+            builder.setTitle(R.string.edit_data).
+                    setView(editText).
+                    setCancelable(true)
+                    //cancel button actions
+                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+
+                        }
+                    })
+                    //accepting change button actions
+                    .setPositiveButton(R.string.accept, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+
+                            String newData = String.valueOf(editText.getText());//get new value of Text field
+
+                            replaceDataToDB(getActivity(), selectionType, dataList.get(position), newData);//replacing data in DB
+
+                            dataList.set(position, newData);//replacing data in dataList(local storage)
+
+                            adapter.notifyDataSetChanged();//refreshing adapter to confirm changes
+                        }
+                    });
+
+
+            AlertDialog alert = builder.create();
+            alert.show();
+
+        }
+    }
+
+    private void deleteButton(final int position){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //connecting to DB
+                DBHelper dbHelper = new DBHelper(getActivity());
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
+                //delete from db
+                db.delete(selectionType,DBHelper.KEY_VALUE+"=?",new String[]{dataList.get(position)});
+
+            }
+        }).start();
+
+
+        Toast.makeText(getActivity(), dataList.get(position) + " "+getResources().getString(R.string.deleted),Toast.LENGTH_SHORT).show();
+
+        dataList.remove(position);//removing from local storage
+        adapter.notifyDataSetChanged();//refreshing adapter
+        //notify user of deleting item
+
+    }
+
+    private void fabClick(){
+        //for working back button
+
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());//Buider of adding window
+        final EditText editText = new EditText(getActivity());//text field where we go write user data
+
+
+        //Focus keyboard on TextField
+        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                editText.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+                    }
+                });
+            }
+        });
+        editText.requestFocus();
+
+        //Set keyboard type where it have done button
+        editText.setInputType(InputType.TYPE_CLASS_TEXT);
+
+        //starting customize our window
+        builder.setTitle(R.string.add_data_item_title).
+                setView(editText).
+                setCancelable(true)
+                //cancel button actions
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                })
+                //add button actions
+                .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        String newData = String.valueOf(editText.getText());//data from text field
+
+                        if(!newData.isEmpty()){ //if text field is not empty than we can add it to database and our local storage
+                            addDataToDB(getActivity(), selectionType, newData);//adding new data to db
+                            dataList.add(newData);//adding data to local storage
+                            adapter.notifyDataSetChanged();//refreshing adapter to show changes
+
+
+                        }else{
+                            //show some text if text field is empty
+                            Toast.makeText(getActivity(),R.string.empty_data,Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+        //building window
+        final AlertDialog alert = builder.create();
+        alert.show();
+
+        //customizing our done button on keyboard
+        editText.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if(event.getAction() == KeyEvent.ACTION_DOWN){//press down
+                    if(keyCode == KeyEvent.KEYCODE_ENTER){//done button
+
+                        //Next is the same like in add button on simple add window
+                        String newData = String.valueOf(editText.getText());
+
+                        if(!newData.isEmpty()){
+                            addDataToDB(getActivity(), selectionType, newData);
+                            dataList.add(newData);
+                            adapter.notifyDataSetChanged();
+                            editText.clearFocus();
+                            alert.cancel();
+
+                        }else{
+                            Toast.makeText(getActivity(),R.string.empty_data,Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+                return false;
+            }
+        });
     }
 
 }
